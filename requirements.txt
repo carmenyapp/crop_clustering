@@ -5,3 +5,4 @@ matplotlib==3.7.1
 hdbscan==0.8.38.post1
 scipy==1.13.1
 numpy==1.26.4
+sklearn-pandas==2.2.0
