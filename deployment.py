@@ -12,13 +12,14 @@ import numpy as np
 # Load your dataset (replace with your data loading logic)
 df = pd.read_csv('crop_yield.csv')
 
-# Preprocess the data (adjust based on your specific needs)
+# Preprocess the data
 def preprocess_data(df, threshold=3):
     numeric_df = df.select_dtypes(include=[float, int])
     z_scores = zscore(numeric_df)
     outliers = (z_scores.abs() > threshold)
-    outlier_indices = outliers[outliers.any(axis=1)].index
-    return df.drop(index=outlier_indices)
+    outlier_indices = outliers.any(axis=1)
+    cleaned_df = df[~outlier_indices]  # Drop outliers
+    return cleaned_df.select_dtypes(include=[float, int]).values  # Return NumPy array of numeric data
 
 # Clustering evaluation
 def evaluate_clustering(labels, data):
@@ -27,6 +28,16 @@ def evaluate_clustering(labels, data):
     davies_bouldin = davies_bouldin_score(data, labels) if len(set(labels)) > 1 else None
     return silhouette_avg, calinski_harabasz, davies_bouldin
 
+# Plot clusters
+def plot_clusters(data, labels):
+    plt.figure(figsize=(10, 6))
+    plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', marker='o')
+    plt.title("Cluster Visualization")
+    plt.xlabel("Feature 1")
+    plt.ylabel("Feature 2")
+    plt.colorbar(label='Cluster Label')
+    st.pyplot()
+    
 # Main function
 def main():
     st.title("Clustering Model Selection and Parameter Tuning")
