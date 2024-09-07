@@ -51,7 +51,6 @@ def evaluate_clustering(labels, data):
     davies_bouldin = davies_bouldin_score(data, labels) if len(set(labels)) > 1 else None
     return silhouette_avg, calinski_harabasz, davies_bouldin
 
-# Plot clusters
 def plot_clusters(data, labels):
     plt.figure(figsize=(10, 6))
     plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', marker='o')
@@ -59,8 +58,8 @@ def plot_clusters(data, labels):
     plt.xlabel("Feature 1")
     plt.ylabel("Feature 2")
     plt.colorbar(label='Cluster Label')
-    st.pyplot()
-    
+    st.pyplot(plt)  # Pass the plot to Streamlit
+
 # Main function
 def main():
     st.title("Clustering Model Selection and Parameter Tuning")
@@ -110,8 +109,8 @@ def main():
         st.write(f"Calinski-Harabasz Score: {metrics[1]}")
         st.write(f"Davies-Bouldin Score: {metrics[2]}")
 
-        # Visualize clusters (adjust based on your data)
-        st.pyplot()
+        # Visualize clusters
+        plot_clusters(preprocessed_df.values, labels)  # Add this to visualize clusters
 
 if __name__ == "__main__":
     main()
