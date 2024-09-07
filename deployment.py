@@ -6,6 +6,7 @@ import hdbscan
 from sklearn.cluster import SpectralClustering
 import matplotlib.pyplot as plt
 from scipy.stats import zscore
+import numpy as np
 
 
 # Load your dataset (replace with your data loading logic)
