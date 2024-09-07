@@ -4,9 +4,10 @@ from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 import hdbscan
 from sklearn.cluster import SpectralClustering
+import matplotlib.pyplot as plt
 
 # Load your dataset (replace with your data loading logic)
-df = pd.read_csv('your_data.csv')
+df = pd.read_csv('crop_yield.csv')
 
 # Preprocess the data (adjust based on your specific needs)
 def preprocess_data(df, threshold=3):
