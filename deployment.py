@@ -5,6 +5,8 @@ from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bo
 import hdbscan
 from sklearn.cluster import SpectralClustering
 import matplotlib.pyplot as plt
+from scipy.stats import zscore
+
 
 # Load your dataset (replace with your data loading logic)
 df = pd.read_csv('crop_yield.csv')
