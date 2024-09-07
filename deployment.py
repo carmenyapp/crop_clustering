@@ -2,39 +2,48 @@ import streamlit as st
 import pandas as pd
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.decomposition import PCA
 import hdbscan
 from sklearn.cluster import SpectralClustering
 import matplotlib.pyplot as plt
 from scipy.stats import zscore
 import numpy as np
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.decomposition import PCA
+
+
+# Load your dataset (replace with your data loading logic)
+df = pd.read_csv('crop_yield.csv')
 
 # Preprocess the data
-def preprocess_data(df, threshold=3):
-    # Handle categorical variables
-    le = LabelEncoder()
-    for column in df.columns:
-        if df[column].dtype == 'object':
-            df[column] = le.fit_transform(df[column])
-
-    # Scale numeric variables
-    scaler = StandardScaler()
+def preprocess_data(df, threshold=3, pca_components=2):
+    # Step 1: Handle outliers
     numeric_df = df.select_dtypes(include=[float, int])
-    scaled_data = scaler.fit_transform(numeric_df)
-
-    # Reduce dimensionality using PCA
-    pca = PCA(n_components=2)
-    scaled_df_pca = pca.fit_transform(scaled_data)
-
-    # Drop outliers
-    z_scores = zscore(scaled_df_pca)
+    z_scores = zscore(numeric_df)
     outliers = (z_scores.abs() > threshold)
     outlier_indices = outliers.any(axis=1)
-    cleaned_df = scaled_df_pca[~outlier_indices]
+    df_cleaned = df[~outlier_indices]
 
-    return cleaned_df
+    # Step 2: Label Encoding for categorical variables
+    le = LabelEncoder()
+    for column in df_cleaned.columns:
+        if df_cleaned[column].dtype == 'object':
+            df_cleaned[column] = le.fit_transform(df_cleaned[column])
 
+    # Step 3: Standard Scaling for numerical data
+    numeric_df_cleaned = df_cleaned.select_dtypes(include=[float, int])
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(numeric_df_cleaned)
+
+    # Step 4: PCA for dimensionality reduction
+    pca = PCA(n_components=pca_components)
+    pca_data = pca.fit_transform(scaled_data)
+
+    # Create DataFrame for PCA results
+    pca_columns = [f'PC{i+1}' for i in range(pca_components)]
+    pca_df = pd.DataFrame(pca_data, columns=pca_columns)
+
+    return pca_df
+    
 # Clustering evaluation
 def evaluate_clustering(labels, data):
     silhouette_avg = silhouette_score(data, labels) if len(set(labels)) > 1 else None
@@ -43,15 +52,15 @@ def evaluate_clustering(labels, data):
     return silhouette_avg, calinski_harabasz, davies_bouldin
 
 # Plot clusters
-def plot_clusters(data, labels, title):
+def plot_clusters(data, labels):
     plt.figure(figsize=(10, 6))
     plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', marker='o')
-    plt.title(title)
-    plt.xlabel("PC1")
-    plt.ylabel("PC2")
+    plt.title("Cluster Visualization")
+    plt.xlabel("Feature 1")
+    plt.ylabel("Feature 2")
     plt.colorbar(label='Cluster Label')
     st.pyplot()
-
+    
 # Main function
 def main():
     st.title("Clustering Model Selection and Parameter Tuning")
@@ -101,8 +110,8 @@ def main():
         st.write(f"Calinski-Harabasz Score: {metrics[1]}")
         st.write(f"Davies-Bouldin Score: {metrics[2]}")
 
-        # Visualize clusters
-        plot_clusters(preprocessed_df, labels, f"{selected_model} Clustering Visualization")
+        # Visualize clusters (adjust based on your data)
+        st.pyplot()
 
 if __name__ == "__main__":
     main()
