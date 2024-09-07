@@ -57,7 +57,7 @@ def plot_clusters(data, labels):
     plt.title("Cluster Visualization")
     plt.xlabel("Feature 1")
     plt.ylabel("Feature 2")
-    plt.colorbar(label='Cluster Label')
+    plt.legend()
     st.pyplot(plt)  # Pass the plot to Streamlit
 
 # Main function
