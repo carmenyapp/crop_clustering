@@ -62,7 +62,7 @@ def plot_clusters(data, labels):
 
 # Main function
 def main():
-    st.title("Clustering Model Selection and Parameter Tuning")
+    st.title("Clustering Model Selection")
 
     # Model selection
     model_options = ["KMeans", "DBSCAN", "AgglomerativeClustering", "HDBSCAN", "SpectralClustering"]
@@ -70,19 +70,24 @@ def main():
 
     # Parameter scaling
     if selected_model == "KMeans":
-        n_clusters_slider = st.slider("Number of Clusters", min_value=2, max_value=10, value=3)
+        n_clusters_slider = st.slider("Number of Clusters", min_value=2, max_value=10, value=2)
     elif selected_model == "DBSCAN":
-        eps_slider = st.slider("Epsilon (Eps)", min_value=0.1, max_value=2.0, value=1.0)
-        min_samples_slider = st.slider("Min Samples", min_value=2, max_value=20, value=5)
+        eps_slider = st.slider("Epsilon (Eps)", min_value=0.1, max_value=2.0, value=1.2)
+        min_samples_slider = st.slider("Min Samples", min_value=2, max_value=20, value=18)
+    elif selected_model == "GaussianMixture":
+        covariance_options = ["full", "tied", "diag", "spherical"]
+        selected_covariance = st.selectbox("Covariance", covariance_options)
+        n_clusters_slider = st.slider("Number of Clusters", min_value=2, max_value=10, value=2)
     elif selected_model == "AgglomerativeClustering":
-        n_clusters_slider = st.slider("Number of Clusters", min_value=2, max_value=10, value=3)
+        linkage_options = ["ward", "complete", "average", "single"]
+        selected_linkage = st.selectbox("Linkage", linkage_options)
+        n_clusters_slider = st.slider("Number of Clusters", min_value=2, max_value=10, value=2)
     elif selected_model == "HDBSCAN":
         min_cluster_size_slider = st.slider("Min Cluster Size", min_value=2, max_value=20, value=5)
-        min_samples_slider = st.slider("Min Samples", min_value=2, max_value=20, value=5)
+        min_samples_slider = st.slider("Min Samples", min_value=2, max_value=20, value=15)
     elif selected_model == "SpectralClustering":
         n_clusters_slider = st.slider("Number of Clusters", min_value=2, max_value=10, value=3)
-        affinity_options = ["rbf", "nearest_neighbors"]
-        selected_affinity = st.selectbox("Affinity", affinity_options)
+        n_neighbors_slider = st.slider("Number of Neighbors", min_value=2, max_value=10, value=8)
 
     # Clustering and evaluation
     if st.button("Cluster"):
@@ -92,12 +97,14 @@ def main():
             model = KMeans(n_clusters=n_clusters_slider, random_state=42)
         elif selected_model == "DBSCAN":
             model = DBSCAN(eps=eps_slider, min_samples=min_samples_slider)
+        elif selected_model == "GaussianMixture":
+            model = GaussianMixture(n_clusters=n_clusters_slider,covariance_type=selected_covariance)
         elif selected_model == "AgglomerativeClustering":
-            model = AgglomerativeClustering(n_clusters=n_clusters_slider)
+            model = AgglomerativeClustering(n_clusters=n_clusters_slider,linkage=selected_linkage)
         elif selected_model == "HDBSCAN":
             model = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size_slider, min_samples=min_samples_slider)
         elif selected_model == "SpectralClustering":
-            model = SpectralClustering(n_clusters=n_clusters_slider, affinity=selected_affinity)
+            model = SpectralClustering(n_clusters=n_clusters_slider,n_neighbors=n_neighbors_slider)
 
         labels = model.fit_predict(preprocessed_df)
 
